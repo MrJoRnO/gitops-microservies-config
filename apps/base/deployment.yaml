@@ -34,7 +34,7 @@ spec:
 
       containers:
         - name: app
-          image: REGISTRY_PLACEHOLDER/platform/saas-api-gateway:IMAGE_TAG_PLACEHOLDER
+          image: platform/saas-api-gateway:latest
           imagePullPolicy: Always
           ports:
             - name: http

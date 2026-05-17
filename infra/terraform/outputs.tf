@@ -83,3 +83,9 @@ output "anthropic_api_key_secret_arn" {
   description = "ARN of the Anthropic API key secret"
   value       = module.secrets.anthropic_api_key_secret_arn
 }
+
+# --- GitHub Actions CI ---
+output "github_ci_role_arn" {
+  description = "Set as AWS_CI_ROLE_ARN secret in the app-repo GitHub repository settings"
+  value       = module.iam.github_ci_role_arn
+}

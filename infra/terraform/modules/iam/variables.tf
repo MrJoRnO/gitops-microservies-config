@@ -12,3 +12,5 @@ variable "cluster_oidc_url" {
   description = "The URL of the OIDC Provider from EKS module"
   type        = string
 }
+
+

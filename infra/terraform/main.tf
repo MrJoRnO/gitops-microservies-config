@@ -51,6 +51,10 @@ module "iam" {
   env              = var.env
   cluster_oidc_arn = module.eks.cluster_oidc_arn
   cluster_oidc_url = module.eks.cluster_oidc_url
+
+  github_org                  = var.github_org
+  github_app_repo             = var.github_app_repo
+  create_github_oidc_provider = var.env == "dev" ? true : false
 }
 
 # -----------------------------------------------------------------------------
