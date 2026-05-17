@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ai-troubleshooter
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: platform-apps
+  # Cascade deletion — removing this Application also removes all K8s resources.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform-apps
+
+  source:
+    repoURL: https://github.com/<YOUR_ORG>/config-repo   # replace with your repo URL
+    targetRevision: main
+    path: apps/ai-troubleshooter
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ai-troubleshooter
+
+  syncPolicy:
+    automated:
+      prune: true      # remove resources deleted from Git
+      selfHeal: true   # revert manual kubectl edits
+    syncOptions:
+      - CreateNamespace=true   # applies namespace.yaml before everything else
+      - ServerSideApply=true   # avoids annotation size issues on large CRDs

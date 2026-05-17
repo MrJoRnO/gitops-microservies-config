@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saas-api-gateway
+  labels:
+    app: saas-api-gateway
+    version: stable
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: saas-api-gateway
+      version: stable
+  template:
+    metadata:
+      labels:
+        app: saas-api-gateway
+        version: stable
+    spec:
+      serviceAccountName: saas-api-gateway
+
+      tolerations:
+        - key: workload
+          operator: Equal
+          value: application
+          effect: NoSchedule
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: app
+          image: REGISTRY_PLACEHOLDER/platform/saas-api-gateway:IMAGE_TAG_PLACEHOLDER
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 9898
+              protocol: TCP
+          env:
+            - name: APP_ENV
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: DB_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: app-db-credentials
+                  key: connection_string
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

@@ -1,0 +1,92 @@
+---
+# ClusterRole for READ-ONLY cluster-wide access (pods, events, logs, namespaces).
+# ConfigMap writes are intentionally NOT here — they are namespace-scoped below.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ai-troubleshooter-reader
+  labels:
+    app: ai-troubleshooter
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ai-troubleshooter-reader
+  labels:
+    app: ai-troubleshooter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ai-troubleshooter-reader
+subjects:
+  - kind: ServiceAccount
+    name: ai-troubleshooter
+    namespace: ai-troubleshooter
+---
+# Namespace-scoped Role: ConfigMap writes in staging only.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ai-troubleshooter-writer
+  namespace: staging
+  labels:
+    app: ai-troubleshooter
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ai-troubleshooter-writer
+  namespace: staging
+  labels:
+    app: ai-troubleshooter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ai-troubleshooter-writer
+subjects:
+  - kind: ServiceAccount
+    name: ai-troubleshooter
+    namespace: ai-troubleshooter
+---
+# Namespace-scoped Role: ConfigMap writes in production only.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ai-troubleshooter-writer
+  namespace: production
+  labels:
+    app: ai-troubleshooter
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ai-troubleshooter-writer
+  namespace: production
+  labels:
+    app: ai-troubleshooter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ai-troubleshooter-writer
+subjects:
+  - kind: ServiceAccount
+    name: ai-troubleshooter
+    namespace: ai-troubleshooter

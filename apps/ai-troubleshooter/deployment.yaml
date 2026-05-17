@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-troubleshooter
+  namespace: ai-troubleshooter
+  labels:
+    app: ai-troubleshooter
+spec:
+  replicas: 1           # single replica — watcher holds in-memory dedup state
+  selector:
+    matchLabels:
+      app: ai-troubleshooter
+  template:
+    metadata:
+      labels:
+        app: ai-troubleshooter
+        version: stable
+    spec:
+      serviceAccountName: ai-troubleshooter
+
+      # Tolerate the application node taint so we don't consume a system node.
+      tolerations:
+        - key: workload
+          operator: Equal
+          value: application
+          effect: NoSchedule
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: troubleshooter
+          # Replace <ECR_REGISTRY> with your actual ECR URL during bootstrap,
+          # or let the CI pipeline manage this value via GitOps image update.
+          image: <ECR_REGISTRY>/ai-troubleshooter:latest
+          imagePullPolicy: Always
+
+          env:
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: anthropic-api-key   # created by the ExternalSecret above
+                  key: api-key
+
+          ports:
+            - name: health
+              containerPort: 8080
+              protocol: TCP
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 15
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+
+          # No writable paths needed — the service makes outbound API calls only.
+          # If you add file-based caching later, mount an emptyDir here.

@@ -1,0 +1,27 @@
+# ── Terraform ────────────────────────────────────────────────────────────────
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+.terraform.lock.hcl
+override.tf
+override.tf.json
+*_override.tf
+*.auto.tfvars
+
+# tfvars in this repo are non-sensitive (only env name + region) — whitelist them
+!dev.tfvars
+!staging.tfvars
+!prod.tfvars
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+.env.*
+*.pem
+*.key
+kubeconfig
+kubeconfig_*
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store

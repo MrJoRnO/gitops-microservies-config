@@ -1,0 +1,49 @@
+---
+# Default deny-all for the ai-troubleshooter namespace.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: ai-troubleshooter
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+# Allow the troubleshooter pod to:
+#   Ingress  — health probe traffic from the kubelet (any source)
+#   Egress   — HTTPS to Claude API + Kubernetes API server
+#              DNS (UDP/TCP 53) for name resolution
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ai-troubleshooter-allow
+  namespace: ai-troubleshooter
+spec:
+  podSelector:
+    matchLabels:
+      app: ai-troubleshooter
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Kubelet health probes (no podSelector restriction — kubelets don't have a pod IP)
+    - ports:
+        - port: 8080
+          protocol: TCP
+  egress:
+    # Kubernetes API server (in-cluster: port 443)
+    - ports:
+        - port: 443
+          protocol: TCP
+        - port: 6443
+          protocol: TCP
+    # Claude API (api.anthropic.com:443) — covered by the port 443 rule above.
+    # DNS
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP

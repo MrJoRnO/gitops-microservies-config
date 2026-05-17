@@ -1,0 +1,43 @@
+# This Ingress is the object that causes the AWS Load Balancer Controller to
+# provision a real ALB in AWS.  The annotations drive the controller's behavior:
+#
+#   kubernetes.io/ingress.class: alb          → hand off to ALB controller
+#   alb.ingress.kubernetes.io/scheme          → internet-facing or internal
+#   alb.ingress.kubernetes.io/target-type: ip → route directly to pod IPs
+#                                               (required when Istio sidecar is injected)
+#
+# Per-environment values (hostname, certificate ARN, scheme) are patched by the
+# overlay in overlays/staging/ and overlays/production/.
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: saas-api-gateway
+  labels:
+    app: saas-api-gateway
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    # Certificate ARN is patched per environment in the overlay
+    alb.ingress.kubernetes.io/certificate-arn: ""
+    alb.ingress.kubernetes.io/healthcheck-path: /healthz
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "15"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "3"
+    # Group allows multiple Ingresses to share the same ALB (saves cost)
+    alb.ingress.kubernetes.io/group.name: platform
+spec:
+  rules:
+    - host: app.example.com    # patched per environment in overlay
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: saas-api-gateway
+                port:
+                  name: http
