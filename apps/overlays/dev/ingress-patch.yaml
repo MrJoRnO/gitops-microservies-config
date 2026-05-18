@@ -4,12 +4,11 @@ metadata:
   name: saas-api-gateway
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-central-1:123456789012:certificate/DEV-CERT-ARN
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     alb.ingress.kubernetes.io/group.name: platform-dev
 spec:
   rules:
-    - host: app.dev.example.com
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix
