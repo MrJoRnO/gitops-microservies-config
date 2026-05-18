@@ -12,5 +12,5 @@ resources:
 # Overlays override newName + newTag per environment.
 images:
   - name: platform/saas-api-gateway
-    newName: REGISTRY_PLACEHOLDER/platform/saas-api-gateway
+    newName: 194636597980.dkr.ecr.eu-central-1.amazonaws.com/platform/saas-api-gateway
     newTag: latest

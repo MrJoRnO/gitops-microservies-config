@@ -286,6 +286,25 @@ spec:
       - ServerSideApply=true
 EOF
 
+      # ── ClusterSecretStore — connects ESO to AWS Secrets Manager ────────────
+      echo "Applying ClusterSecretStore..."
+      kubectl apply --context "$CTX" -f - <<EOF
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: aws-secrets-manager
+spec:
+  provider:
+    aws:
+      service: SecretsManager
+      region: $AWS_REGION
+      auth:
+        jwt:
+          serviceAccountRef:
+            name: external-secrets-sa
+            namespace: external-secrets
+EOF
+
       # ── saas-api-gateway (per environment) ──────────────────────────────────
       ENV="${var.env}"
       CONFIG_REPO_URL="${var.config_repo_url}"
