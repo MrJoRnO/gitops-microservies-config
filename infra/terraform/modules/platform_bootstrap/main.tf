@@ -60,6 +60,7 @@ resource "null_resource" "argocd_platform_apps" {
     external_secrets_role_arn   = var.external_secrets_role_arn
     cluster_autoscaler_role_arn = var.cluster_autoscaler_role_arn
     argocd_version              = var.argocd_version
+    config_repo_url             = var.config_repo_url
   }
 
   provisioner "local-exec" {
@@ -280,6 +281,46 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
+      - ServerSideApply=true
+EOF
+
+      # ── saas-api-gateway (per environment) ──────────────────────────────────
+      ENV="${var.env}"
+      CONFIG_REPO_URL="${var.config_repo_url}"
+
+      # Map Terraform env → kustomize overlay path and target namespace
+      case "$ENV" in
+        dev)     OVERLAY="dev";        TARGET_NS="dev"        ;;
+        staging) OVERLAY="staging";    TARGET_NS="staging"    ;;
+        prod)    OVERLAY="production"; TARGET_NS="production"  ;;
+      esac
+
+      echo "Applying saas-api-gateway Application for $ENV..."
+      kubectl apply --context "$CTX" -f - <<EOF
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: saas-api-gateway-$ENV
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: platform-apps
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform-apps
+  source:
+    repoURL: $CONFIG_REPO_URL
+    targetRevision: $ENV
+    path: apps/overlays/$OVERLAY
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: $TARGET_NS
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
       - ServerSideApply=true
 EOF
 

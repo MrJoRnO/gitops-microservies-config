@@ -11,7 +11,7 @@
 # using the path configured in apps/ai-troubleshooter/external-secret.yaml.
 
 resource "aws_secretsmanager_secret" "anthropic_api_key" {
-  name                    = "ai-troubleshooter/anthropic-api-key"
+  name                    = "ai-troubleshooter/anthropic-api-key/v1"
   description             = "Anthropic API key for the AI Troubleshooter pod-failure analyzer"
   recovery_window_in_days = 7
 

@@ -24,3 +24,9 @@ variable "github_app_repo" {
   type        = string
   default     = "gitops-microservies-app"
 }
+
+variable "config_repo_name" {
+  description = "Name of the GitOps config repository"
+  type        = string
+  default     = "gitops-microservies-config"
+}

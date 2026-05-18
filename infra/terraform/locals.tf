@@ -28,7 +28,7 @@ locals {
       }
 
       # Secrets Manager
-      db_secret_name = "dev/platform/db"
+      db_secret_name = "dev/platform/db/v1"
     }
 
     staging = {

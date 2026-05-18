@@ -57,3 +57,8 @@ variable "cluster_autoscaler_chart_version" {
   description = "Helm chart version for Cluster Autoscaler"
   default     = "9.37.0"
 }
+
+variable "config_repo_url" {
+  type        = string
+  description = "HTTPS URL of the GitOps config repo (e.g. https://github.com/org/config-repo)"
+}

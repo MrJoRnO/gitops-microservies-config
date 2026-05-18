@@ -125,6 +125,7 @@ module "platform_bootstrap" {
   alb_controller_role_arn     = module.iam.alb_controller_role_arn
   external_secrets_role_arn   = module.iam.external_secrets_role_arn
   cluster_autoscaler_role_arn = module.iam.cluster_autoscaler_role_arn
+  config_repo_url             = "https://github.com/${var.github_org}/${var.config_repo_name}"
 
   depends_on = [time_sleep.wait_for_cluster, module.iam]
 }
