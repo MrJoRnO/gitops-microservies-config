@@ -3,10 +3,7 @@ kind: Ingress
 metadata:
   name: saas-api-gateway
   annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
-    alb.ingress.kubernetes.io/ssl-redirect: "false"
-    alb.ingress.kubernetes.io/certificate-arn: ""
     alb.ingress.kubernetes.io/group.name: platform-dev
 spec:
   rules:
