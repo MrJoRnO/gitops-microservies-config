@@ -19,7 +19,6 @@ variable "github_org" {
 variable "github_app_repo" {
   description = "Name of the application repository (e.g. 'app-repo')"
   type        = string
-  default     = "app-repo"
 }
 
 # One OIDC provider per AWS account — use count to avoid duplicates across envs.
@@ -67,8 +66,8 @@ resource "aws_iam_role" "github_ci" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          # Scope to the specific repo and all its branches
-          "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.github_app_repo}:ref:refs/heads/*"
+          # workflow_run events may omit the ref portion — wildcard covers all formats
+          "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.github_app_repo}:*"
         }
       }
     }]

@@ -112,6 +112,8 @@ spec:
     - server: https://kubernetes.default.svc
       namespace: external-secrets
     - server: https://kubernetes.default.svc
+      namespace: dev
+    - server: https://kubernetes.default.svc
       namespace: staging
     - server: https://kubernetes.default.svc
       namespace: production
