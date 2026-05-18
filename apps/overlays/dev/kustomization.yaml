@@ -4,15 +4,15 @@ kind: Kustomization
 namespace: dev
 
 resources:
-  - namespace.yaml
-  - ../../base
+- namespace.yaml
+- ../../base
 
 patches:
-  - path: ingress-patch.yaml
+- path: ingress-patch.yaml
 
 # CD pipeline updates newTag on every successful build of the dev branch.
 # Format: dev-<short-git-sha>  e.g. dev-a1b2c3d4
 images:
-  - name: platform/saas-api-gateway
-    newName: 194636597980.dkr.ecr.eu-central-1.amazonaws.com/platform/saas-api-gateway
-    newTag: dev-latest
+- name: platform/saas-api-gateway
+  newName: 194636597980.dkr.ecr.eu-central-1.amazonaws.com/platform/saas-api-gateway
+  newTag: dev-315e156f
